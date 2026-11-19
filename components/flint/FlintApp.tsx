@@ -773,7 +773,12 @@ export function FlintApp({ locale }: { locale: UiLocale; urlLocale: UrlLocale })
               </div>
             ) : (
               <div className={device === "phone" ? "device phone" : "device"}>
-                <iframe key={previewKey} title={copy.previewTitle} sandbox="allow-scripts allow-forms" srcDoc={preview} />
+                <iframe
+                  key={previewKey}
+                  title={copy.previewTitle}
+                  sandbox="allow-scripts allow-forms allow-popups"
+                  srcDoc={preview}
+                />
               </div>
             )}
           </div>

@@ -65,6 +65,18 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const host = request.headers.get("host")?.split(":")[0] ?? "";
+  if (host.endsWith(".apps.grok.bot")) {
+    const parts = pathname.split("/").filter(Boolean);
+    const locale = parts[0] && isUrlLocale(parts[0]) ? parts[0] : detectUrlLocale(request);
+    const onBuilder = parts[1] === "flint";
+    if (!onBuilder) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${locale}/flint`;
+      return NextResponse.redirect(url);
+    }
+  }
+
   const first = pathname.split("/").filter(Boolean)[0];
   if (first && isUrlLocale(first)) {
     const headers = new Headers(request.headers);
