@@ -22,7 +22,10 @@ export type Kind =
   | "links"
   | "chat"
   | "fitness"
-  | "inventory";
+  | "inventory"
+  | "slides";
+
+export type BuildMode = "website" | "app" | "prototype" | "slides";
 
 export type PaletteId =
   | "clay"
@@ -118,4 +121,5 @@ export const KINDS: Kind[] = [
   "chat",
   "fitness",
   "inventory",
+  "slides",
 ];

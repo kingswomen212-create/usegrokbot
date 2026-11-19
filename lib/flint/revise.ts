@@ -35,6 +35,7 @@ const KIND_WORDS: { kind: Kind; re: RegExp }[] = [
   { kind: "blog", re: /blog|網誌|博客/i },
   { kind: "portfolio", re: /portfolio|作品集/i },
   { kind: "menu", re: /menu|菜單|菜单|メニュー/i },
+  { kind: "slides", re: /\bslides?\b|slide deck|簡報|幻灯片|スライド/i },
   { kind: "landing", re: /landing|website|home\s?page|網站|网站|首頁|首页|サイト/i },
 ];
 

@@ -8,7 +8,7 @@ import { parseBrief } from "@/lib/flint/parse";
 import { revise } from "@/lib/flint/revise";
 import { explain, opening, studioCopy, suggestions } from "@/lib/flint/studio";
 import { slug } from "@/lib/flint/text";
-import type { Blueprint, ChatMessage, Project, UiLocale } from "@/lib/flint/types";
+import type { Blueprint, BuildMode, ChatMessage, Project, UiLocale } from "@/lib/flint/types";
 import { zipStore } from "@/lib/flint/zip";
 import type { UrlLocale } from "@/lib/i18n/paths";
 import "./flint.css";
@@ -61,8 +61,41 @@ function touch(project: Project): Project {
   return { ...project, updatedAt: Date.now() };
 }
 
-function createProject(prompt: string): Project {
-  const blueprint = parseBrief(prompt);
+function ModeIcon({ id }: { id: BuildMode }) {
+  const common = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, "aria-hidden": true as const };
+  if (id === "website") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="8" />
+        <path d="M4 12h16M12 4c2.5 2.8 2.5 13.2 0 16M12 4c-2.5 2.8-2.5 13.2 0 16" />
+      </svg>
+    );
+  }
+  if (id === "app") {
+    return (
+      <svg {...common}>
+        <rect x="7" y="3" width="10" height="18" rx="2" />
+        <path d="M11 18h2" />
+      </svg>
+    );
+  }
+  if (id === "slides") {
+    return (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="12" rx="2" />
+        <path d="M8 20h8" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common}>
+      <path d="M8 5h8v4H8zM5 11h6v8H5zM13 11h6v8h-6z" />
+    </svg>
+  );
+}
+
+function createProject(prompt: string, mode: BuildMode): Project {
+  const blueprint = parseBrief(prompt, mode);
   const now = Date.now();
   return {
     id: uid(),
@@ -93,6 +126,7 @@ export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: U
   const [tab, setTab] = useState<"chat" | "preview" | "code">("preview");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [previewKey, setPreviewKey] = useState(0);
+  const [mode, setMode] = useState<BuildMode>("prototype");
 
   const active = projects.find((project) => project.id === activeId) ?? null;
 
@@ -146,10 +180,10 @@ export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: U
     }
   }
 
-  function build(text: string) {
+  function build(text: string, chosen = mode) {
     const clean = text.trim();
     if (!clean || phase === "composing") return;
-    const project = createProject(clean);
+    const project = createProject(clean, chosen);
     project.messages[1] = { id: uid(), role: "assistant", text: opening(project.blueprint, locale) };
     setPrompt("");
     setSelected("index.html");
@@ -230,74 +264,68 @@ export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: U
   if (!active) {
     return (
       <div className="shell">
-        <div className="home-scroll">
-          <div className="home">
-            <div className="home-top">
-              <p className="word">{copy.product}</p>
-              <Link className="catalog" href={`/${urlLocale}`}>
-                {copy.catalog}
-              </Link>
-            </div>
-            <div className="home-grid">
-              <section>
-                <p className="eyebrow">{copy.eyebrow}</p>
-                <h1 className="display">{copy.title}</h1>
-                <p className="lede">{copy.lede}</p>
-                <form
-                  className="paper"
-                  onSubmit={(event) => {
+        <div className="home-scroll gate">
+          <div className="gate-nav">
+            <p className="word">{copy.product}</p>
+            <Link className="catalog" href={`/${urlLocale}`}>
+              {copy.catalog}
+            </Link>
+          </div>
+          <div className="gate-hero">
+            <h1 className="gate-title">{copy.title}</h1>
+            <p className="gate-lede">{copy.lede}</p>
+            <form
+              className="prompt-card"
+              onSubmit={(event) => {
+                event.preventDefault();
+                build(prompt);
+              }}
+            >
+              <label className="sr" htmlFor="flint-prompt">
+                {copy.build}
+              </label>
+              <textarea
+                id="flint-prompt"
+                name="prompt"
+                value={prompt}
+                placeholder={copy.placeholder}
+                onChange={(event) => setPrompt(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
                     event.preventDefault();
                     build(prompt);
-                  }}
-                >
-                  <label htmlFor="flint-prompt">{copy.build}</label>
-                  <textarea
-                    id="flint-prompt"
-                    name="prompt"
-                    value={prompt}
-                    placeholder={copy.placeholder}
-                    onChange={(event) => setPrompt(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-                        event.preventDefault();
-                        build(prompt);
-                      }
-                    }}
-                  />
-                  <div className="paper-row">
-                    <p className="hint">⌘ Enter</p>
-                    <button className="primary" type="submit" disabled={!prompt.trim()}>
-                      {copy.build}
-                    </button>
-                  </div>
-                </form>
-              </section>
-              <aside className="mock" aria-hidden="true">
-                <div className="mock-bar">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-                <div className="mock-card">
-                  <b>Clay & Co</b>
-                  <p>Sat 10:00 · Beginner wheel</p>
-                  <ol>
-                    <li>Sat 14:00 · Glaze day</li>
-                    <li>Sun 11:00 · Open studio</li>
-                  </ol>
-                </div>
-              </aside>
-            </div>
-            <section>
-              <h2 className="block-title">{copy.examples}</h2>
-              <div className="chips">
-                {copy.samples.map((sample) => (
-                  <button key={sample.prompt} type="button" className="chip" onClick={() => build(sample.prompt)}>
-                    {sample.label}
-                  </button>
-                ))}
+                  }
+                }}
+              />
+              <div className="prompt-actions">
+                <button className="build-now" type="submit" disabled={!prompt.trim() || phase === "composing"}>
+                  {copy.build}
+                </button>
               </div>
-            </section>
+            </form>
+            <div className="modes" role="radiogroup" aria-label={copy.title}>
+              {copy.modes.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={mode === item.id}
+                  className={mode === item.id ? "mode on" : "mode"}
+                  onClick={() => setMode(item.id)}
+                >
+                  <ModeIcon id={item.id} />
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <p className="or">{copy.startFrom}</p>
+            <div className="chips center">
+              {copy.samples.map((sample) => (
+                <button key={sample.prompt} type="button" className="chip" onClick={() => build(sample.prompt)}>
+                  {sample.label}
+                </button>
+              ))}
+            </div>
             {projects.length > 0 ? (
               <section>
                 <h2 className="block-title">{copy.library}</h2>

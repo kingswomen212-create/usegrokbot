@@ -205,6 +205,7 @@ const en: Phrases = {
     chat: "Messages",
     fitness: "Training log",
     inventory: "Stock",
+    slides: "Slides",
   },
   yearNote: "Made to be used",
 };
@@ -319,6 +320,7 @@ const zhHant: Phrases = {
     chat: "訊息",
     fitness: "訓練記錄",
     inventory: "庫存",
+    slides: "簡報",
   },
   yearNote: "做好就能用",
 };
@@ -412,6 +414,7 @@ const zhHans: Phrases = {
     chat: "消息",
     fitness: "训练记录",
     inventory: "库存",
+    slides: "幻灯片",
   },
   yearNote: "做好就能用",
 };
@@ -526,6 +529,7 @@ const ja: Phrases = {
     chat: "メッセージ",
     fitness: "トレーニング",
     inventory: "在庫",
+    slides: "スライド",
   },
   yearNote: "すぐ使えるように",
 };

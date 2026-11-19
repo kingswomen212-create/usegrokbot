@@ -13,10 +13,10 @@ const serif = Instrument_Serif({
 });
 
 const TITLES: Record<UrlLocale, string> = {
-  en: "Describe it. Use it.",
-  "zh-hk": "描述它，然後直接使用",
-  "zh-cn": "描述它，然后直接使用",
-  ja: "書いて、すぐ使う。",
+  en: "What will you build today?",
+  "zh-hk": "今天要做什麼？",
+  "zh-cn": "今天要做什么？",
+  ja: "今日は何を作りますか？",
 };
 
 export async function generateMetadata({

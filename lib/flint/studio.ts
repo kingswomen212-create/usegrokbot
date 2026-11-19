@@ -1,5 +1,5 @@
 import type { Change } from "./revise";
-import type { Blueprint, Kind, UiLocale } from "./types";
+import type { Blueprint, BuildMode, Kind, UiLocale } from "./types";
 
 export type StudioCopy = {
   product: string;
@@ -37,17 +37,19 @@ export type StudioCopy = {
   writing: string;
   samples: { label: string; prompt: string }[];
   kinds: Record<Kind, string>;
+  modes: { id: BuildMode; label: string }[];
+  startFrom: string;
 };
 
 const en: StudioCopy = {
   product: "Flint",
   eyebrow: "Prompt, then a running page",
-  title: "Describe it. Use it.",
-  lede: "Flint turns one sentence into a page you can click, edit, and download. Lists, boards, timers, ledgers, and sites stay in this browser.",
-  placeholder: "A pottery studio site called Clay & Co, with a class schedule, pricing, and a warm clay palette",
-  build: "Build",
+  title: "What will you build today?",
+  lede: "Create an app or a website from one prompt. It runs in this browser, and you can keep changing it.",
+  placeholder: "Let's build a prototype...",
+  build: "Build now",
   composing: "Composing the page",
-  examples: "Start from a sentence",
+  examples: "or start from",
   library: "On this device",
   open: "Open",
   delete: "Delete",
@@ -107,18 +109,26 @@ const en: StudioCopy = {
     chat: "Messages",
     fitness: "Training",
     inventory: "Stock",
+    slides: "Slides",
   },
+  modes: [
+    { id: "website", label: "Website" },
+    { id: "app", label: "App" },
+    { id: "prototype", label: "Prototype" },
+    { id: "slides", label: "Slides" },
+  ],
+  startFrom: "or start from",
 };
 
 const zhHant: StudioCopy = {
   ...en,
   eyebrow: "一句話，接著就能使用",
-  title: "描述它，然後直接使用",
-  lede: "Flint 會把一句話組成你可以點選、修改、下載的頁面。清單、看板、計時器、帳本和網站都留在這個瀏覽器裡。",
-  placeholder: "一間叫做 Clay & Co 的陶藝教室網站，附上課時間和收費，用溫暖的陶土色",
-  build: "組成",
+  title: "今天要做什麼？",
+  lede: "用一句話做出網站或應用。結果就在這個瀏覽器裡，你還可以繼續改。",
+  placeholder: "做一個可以點的原型…",
+  build: "開始做",
   composing: "正在組成頁面",
-  examples: "從一句話開始",
+  examples: "或從這裡開始",
   library: "這部裝置上",
   open: "打開",
   delete: "刪除",
@@ -174,18 +184,26 @@ const zhHant: StudioCopy = {
     chat: "訊息",
     fitness: "訓練",
     inventory: "庫存",
+    slides: "簡報",
   },
+  modes: [
+    { id: "website", label: "網站" },
+    { id: "app", label: "應用" },
+    { id: "prototype", label: "原型" },
+    { id: "slides", label: "簡報" },
+  ],
+  startFrom: "或從這裡開始",
 };
 
 const zhHans: StudioCopy = {
   ...zhHant,
   eyebrow: "一句话，接着就能使用",
-  title: "描述它，然后直接使用",
-  lede: "Flint 会把一句话组成你可以点选、修改、下载的页面。清单、看板、计时器、账本和网站都留在这个浏览器里。",
-  placeholder: "一间叫做 Clay & Co 的陶艺教室网站，附上课时间和收费，用温暖的陶土色",
-  build: "组成",
+  title: "今天要做什么？",
+  lede: "用一句话做出网站或应用。结果就在这个浏览器里，你还可以继续改。",
+  placeholder: "做一个可以点的原型…",
+  build: "开始做",
   composing: "正在组成页面",
-  examples: "从一句话开始",
+  examples: "或从这里开始",
   library: "这部装置上",
   open: "打开",
   delete: "删除",
@@ -227,18 +245,26 @@ const zhHans: StudioCopy = {
     links: "链接",
     chat: "消息",
     inventory: "库存",
+    slides: "幻灯片",
   },
+  modes: [
+    { id: "website", label: "网站" },
+    { id: "app", label: "应用" },
+    { id: "prototype", label: "原型" },
+    { id: "slides", label: "幻灯片" },
+  ],
+  startFrom: "或从这里开始",
 };
 
 const ja: StudioCopy = {
   ...en,
   eyebrow: "一文を、そのまま使えるページに",
-  title: "書いて、すぐ使う。",
-  lede: "Flint は一文から、クリックできて、直せて、ダウンロードできるページを組みます。一覧、ボード、タイマー、家計、サイトは、このブラウザに残ります。",
-  placeholder: "Clay & Co という陶芸教室のサイト。時間割と料金、暖かい土の色。",
-  build: "組む",
+  title: "今日は何を作りますか？",
+  lede: "一文から、サイトかアプリを作ります。このブラウザで動いて、そのあと直せます。",
+  placeholder: "動くプロトタイプを作る…",
+  build: "今すぐ作る",
   composing: "ページを組んでいます",
-  examples: "文から始める",
+  examples: "またはここから",
   library: "この装置",
   open: "開く",
   delete: "削除",
@@ -294,7 +320,15 @@ const ja: StudioCopy = {
     chat: "メッセージ",
     fitness: "トレーニング",
     inventory: "在庫",
+    slides: "スライド",
   },
+  modes: [
+    { id: "website", label: "サイト" },
+    { id: "app", label: "アプリ" },
+    { id: "prototype", label: "プロトタイプ" },
+    { id: "slides", label: "スライド" },
+  ],
+  startFrom: "またはここから",
 };
 
 const COPY: Record<UiLocale, StudioCopy> = {
