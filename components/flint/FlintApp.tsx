@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { bundleHtml } from "@/lib/flint/bundle";
 import { renderFiles } from "@/lib/flint/generate";
 import { parseBrief } from "@/lib/flint/parse";
 import { revise } from "@/lib/flint/revise";
+import { businesses, templates, toolkits, useCases } from "@/lib/flint/home";
 import { explain, opening, studioCopy, suggestions } from "@/lib/flint/studio";
 import { slug } from "@/lib/flint/text";
 import type { Blueprint, BuildMode, ChatMessage, Project, UiLocale } from "@/lib/flint/types";
@@ -112,7 +112,7 @@ function createProject(prompt: string, mode: BuildMode): Project {
   };
 }
 
-export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: UrlLocale }) {
+export function FlintApp({ locale }: { locale: UiLocale; urlLocale: UrlLocale }) {
   const copy = studioCopy(locale);
   const [hydrated, setHydrated] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -127,6 +127,11 @@ export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: U
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [previewKey, setPreviewKey] = useState(0);
   const [mode, setMode] = useState<BuildMode>("prototype");
+  const [menu, setMenu] = useState<"solutions" | "resources" | null>(null);
+  const [sheet, setSheet] = useState<
+    "docs" | "templates" | "integrations" | "help" | "changelog" | "careers" | "pricing" | "signin" | "figma" | "github" | "team" | "usecases" | "solutions" | null
+  >(null);
+  const [sourceUrl, setSourceUrl] = useState("");
 
   const active = projects.find((project) => project.id === activeId) ?? null;
 
@@ -178,6 +183,19 @@ export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: U
     } catch {
       /* ignore */
     }
+  }
+
+  function openSheet(next: NonNullable<typeof sheet>) {
+    setMenu(null);
+    setSheet(next);
+    setSourceUrl("");
+  }
+
+  function startFrom(starter: { prompt: string; mode: BuildMode }) {
+    setSheet(null);
+    setMenu(null);
+    setMode(starter.mode);
+    build(starter.prompt, starter.mode);
   }
 
   function build(text: string, chosen = mode) {
@@ -265,12 +283,207 @@ export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: U
     return (
       <div className="shell">
         <div className="home-scroll gate">
-          <div className="gate-nav">
+          <header className="topbar">
             <p className="word">{copy.product}</p>
-            <Link className="catalog" href={`/${urlLocale}`}>
-              {copy.catalog}
-            </Link>
-          </div>
+            <nav className="nav-links" aria-label="Primary">
+              <button type="button" className={menu === "solutions" ? "nav-btn on" : "nav-btn"} onClick={() => setMenu(menu === "solutions" ? null : "solutions")}>
+                Solutions
+              </button>
+              <button type="button" className={menu === "resources" ? "nav-btn on" : "nav-btn"} onClick={() => setMenu(menu === "resources" ? null : "resources")}>
+                Resources
+              </button>
+              <button type="button" className="nav-btn" onClick={() => openSheet("careers")}>
+                Careers
+              </button>
+              <button type="button" className="nav-btn" onClick={() => openSheet("pricing")}>
+                Pricing
+              </button>
+            </nav>
+            <div className="nav-actions">
+              <button type="button" className="nav-btn" onClick={() => openSheet("signin")}>
+                Sign in
+              </button>
+              <button
+                type="button"
+                className="build-now"
+                onClick={() => {
+                  setMenu(null);
+                  setSheet(null);
+                  document.getElementById("flint-prompt")?.focus();
+                }}
+              >
+                Get Started
+              </button>
+            </div>
+          </header>
+          {menu === "solutions" ? (
+            <div className="menu" role="menu">
+              <button type="button" className="featured" onClick={() => startFrom(businesses[1]!)}>
+                <strong>AI for Small Business</strong>
+                <span>A working site for a real business: services, pricing, and a way to get in touch.</span>
+              </button>
+              <div>
+                <p className="menu-label">Top use cases</p>
+                {useCases.map((item) => (
+                  <button key={item.label} type="button" className="menu-link" onClick={() => startFrom(item)}>
+                    {item.label}
+                  </button>
+                ))}
+                <button type="button" className="menu-link" onClick={() => openSheet("usecases")}>
+                  All Use Cases
+                </button>
+              </div>
+              <div>
+                <p className="menu-label">Business type</p>
+                {businesses.map((item) => (
+                  <button key={item.label} type="button" className="menu-link" onClick={() => startFrom(item)}>
+                    {item.label}
+                  </button>
+                ))}
+                <button type="button" className="menu-link" onClick={() => openSheet("solutions")}>
+                  All Solutions
+                </button>
+              </div>
+            </div>
+          ) : null}
+          {menu === "resources" ? (
+            <div className="menu resources" role="menu">
+              {(
+                [
+                  ["docs", "Docs"],
+                  ["templates", "Templates"],
+                  ["integrations", "Integrations"],
+                  ["help", "Help"],
+                  ["changelog", "Changelog"],
+                ] as const
+              ).map(([id, label]) => (
+                <button key={id} type="button" className="menu-link" onClick={() => openSheet(id)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {sheet ? (
+            <section className="sheet">
+              <button type="button" className="ghost" onClick={() => setSheet(null)}>
+                Back
+              </button>
+              {sheet === "usecases" || sheet === "solutions" ? (
+                <>
+                  <h1 className="gate-title">{sheet === "usecases" ? "All use cases" : "All solutions"}</h1>
+                  <div className="card-grid">
+                    {(sheet === "usecases" ? useCases : businesses).map((item) => (
+                      <button key={item.label} type="button" className="info-card" onClick={() => startFrom(item)}>
+                        <strong>{item.label}</strong>
+                        <span>{item.prompt}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+              {sheet === "templates" || sheet === "team" ? (
+                <>
+                  <h1 className="gate-title">Team templates</h1>
+                  <div className="card-grid">
+                    {templates.map((item) => (
+                      <button key={item.label} type="button" className="info-card" onClick={() => startFrom(item)}>
+                        <strong>{item.label}</strong>
+                        <span>{item.prompt}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+              {sheet === "figma" || sheet === "github" ? (
+                <form
+                  className="prompt-card"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const url = sourceUrl.trim();
+                    if (!url) return;
+                    const source = sheet === "figma" ? "Figma file" : "GitHub repository";
+                    startFrom({
+                      mode: sheet === "figma" ? "website" : "app",
+                      prompt: `Build from this ${source}: ${url}`,
+                    });
+                  }}
+                >
+                  <h1 className="gate-title">{sheet === "figma" ? "Start from Figma" : "Start from GitHub"}</h1>
+                  <label htmlFor="source-url">{sheet === "figma" ? "Figma link" : "GitHub link"}</label>
+                  <input
+                    id="source-url"
+                    name="source"
+                    value={sourceUrl}
+                    onChange={(event) => setSourceUrl(event.target.value)}
+                    placeholder={sheet === "figma" ? "https://www.figma.com/file/..." : "https://github.com/owner/repo"}
+                  />
+                  <button className="build-now" type="submit" disabled={!sourceUrl.trim()}>
+                    Build now
+                  </button>
+                </form>
+              ) : null}
+              {sheet === "docs" ? (
+                <>
+                  <h1 className="gate-title">Docs</h1>
+                  <p className="gate-lede">Pick Website, App, Prototype, or Slides. Write what you want. Build now opens a page you can click, edit, and download.</p>
+                </>
+              ) : null}
+              {sheet === "integrations" ? (
+                <>
+                  <h1 className="gate-title">Integrations</h1>
+                  <div className="card-grid">
+                    <button type="button" className="info-card" onClick={() => openSheet("figma")}>
+                      <strong>Figma</strong>
+                      <span>Start a site from a Figma link.</span>
+                    </button>
+                    <button type="button" className="info-card" onClick={() => openSheet("github")}>
+                      <strong>GitHub</strong>
+                      <span>Start an app from a repository link.</span>
+                    </button>
+                    <button type="button" className="info-card" onClick={() => openSheet("team")}>
+                      <strong>Team template</strong>
+                      <span>Start from a ready brief.</span>
+                    </button>
+                  </div>
+                </>
+              ) : null}
+              {sheet === "help" ? (
+                <>
+                  <h1 className="gate-title">Help</h1>
+                  <p className="gate-lede">After a build, ask for a change in plain words: “add pricing”, “make it a task list”, or “use a night palette”.</p>
+                </>
+              ) : null}
+              {sheet === "changelog" ? (
+                <>
+                  <h1 className="gate-title">Changelog</h1>
+                  <p className="gate-lede">The builder now starts from a prompt, Solutions, Resources, Figma, GitHub, or a team template.</p>
+                </>
+              ) : null}
+              {sheet === "careers" ? (
+                <>
+                  <h1 className="gate-title">Careers</h1>
+                  <p className="gate-lede">There are no open roles. This is a builder that runs in your browser.</p>
+                </>
+              ) : null}
+              {sheet === "pricing" ? (
+                <>
+                  <h1 className="gate-title">Pricing</h1>
+                  <div className="card-grid">
+                    <article className="info-card">
+                      <strong>Free</strong>
+                      <span>Build, preview, edit, and download in this browser. No account.</span>
+                    </article>
+                  </div>
+                </>
+              ) : null}
+              {sheet === "signin" ? (
+                <>
+                  <h1 className="gate-title">Sign in</h1>
+                  <p className="gate-lede">There is no account. Projects you build stay in this browser.</p>
+                </>
+              ) : null}
+            </section>
+          ) : (
           <div className="gate-hero">
             <h1 className="gate-title">{copy.title}</h1>
             <p className="gate-lede">{copy.lede}</p>
@@ -320,9 +533,21 @@ export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: U
             </div>
             <p className="or">{copy.startFrom}</p>
             <div className="chips center">
-              {copy.samples.map((sample) => (
-                <button key={sample.prompt} type="button" className="chip" onClick={() => build(sample.prompt)}>
-                  {sample.label}
+              <button type="button" className="chip" onClick={() => openSheet("figma")}>
+                Figma
+              </button>
+              <button type="button" className="chip" onClick={() => openSheet("github")}>
+                GitHub
+              </button>
+              <button type="button" className="chip" onClick={() => openSheet("team")}>
+                Team template
+              </button>
+            </div>
+            <div className="card-grid">
+              {toolkits.map((item) => (
+                <button key={item.title} type="button" className="info-card" onClick={() => startFrom(item)}>
+                  <strong>{item.title}</strong>
+                  <span>{item.body}</span>
                 </button>
               ))}
             </div>
@@ -363,6 +588,7 @@ export function FlintApp({ locale, urlLocale }: { locale: UiLocale; urlLocale: U
               </section>
             ) : null}
           </div>
+          )}
         </div>
       </div>
     );
