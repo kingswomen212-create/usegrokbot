@@ -369,6 +369,24 @@ html:has(#mobile-navigation) [data-cursor-bot] {
   }
 }
 
+html[data-flint="1"] body > header,
+html[data-flint="1"] body > footer,
+html[data-flint="1"] body > aside,
+html[data-flint="1"] [data-boot-screen],
+html[data-flint="1"] [data-cursor-bot] {
+  display: none !important;
+}
+
+html[data-flint="1"] body {
+  background: #1c1714;
+}
+
+html[data-flint="1"] body > main {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
 html[data-boot="1"] {
   overflow: hidden;
 }

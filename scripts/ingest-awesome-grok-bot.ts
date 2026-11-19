@@ -91,11 +91,14 @@ function markSkipped(code: string, reason: string, attempts: number): IngestStat
 }
 
 async function extractViaLiveSite(item: SourceCase): Promise<DiscoverStory> {
+  const token = process.env.INGEST_BOT_TOKEN;
+  if (!token) throw new Error("missing_ingest_bot_token");
   const response = await fetch(`${site.url}/api/ingest`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "x-ingest-mode": "extract",
+      "x-ingest-token": token,
       "User-Agent": "UseGrokBot-awesome-source-ingest",
     },
     body: JSON.stringify({

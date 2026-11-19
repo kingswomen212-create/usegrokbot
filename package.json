@@ -14,6 +14,7 @@
     "validate:url-phase1": "tsx scripts/validate-url-reduction-phase1.ts",
     "validate:url-phase2": "node --import tsx scripts/validate-url-reduction-phase2.ts",
     "validate:prompts": "tsx scripts/validate-prompts.ts",
+    "validate:flint": "tsx scripts/validate-flint.ts",
     "validate:template-identities": "tsx scripts/validate-template-identities.ts",
     "validate:template-types": "tsx scripts/validate-template-types.ts",
     "validate:bot-teams": "tsx scripts/validate-bot-teams.ts",

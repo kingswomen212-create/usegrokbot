@@ -1,5 +1,4 @@
 import { collectXUrls, INGEST_URL_LIMIT, ingestUseCase, queueIngestIssue } from "@/lib/ingest";
-import { rateLimit } from "@/lib/ingest/rate-limit";
 
 export const maxDuration = 60;
 
@@ -29,12 +28,10 @@ function urlsFromBody(body: Body) {
 }
 
 export async function POST(request: Request) {
-  const bot = isIngestBot(request);
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!bot && !rateLimit(ip)) {
+  if (!isIngestBot(request)) {
     return Response.json(
-      { status: "skipped", code: "rate_limited", reason: "Too many submissions. Try later." },
-      { status: 429 },
+      { status: "skipped", code: "unauthorized", reason: "A maintainer token is required." },
+      { status: 401 },
     );
   }
 

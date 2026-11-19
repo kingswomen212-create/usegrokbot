@@ -25,7 +25,16 @@ concurrency:
 
 jobs:
   ingest:
-    if: ${{ github.event_name != 'issues' || startsWith(github.event.issue.title, 'Ingest use case:') || startsWith(github.event.issue.title, 'Ingest posts:') || startsWith(github.event.issue.title, 'Ingest batch:') }}
+    if: >-
+      github.event_name != 'issues' ||
+      (
+        (
+          startsWith(github.event.issue.title, 'Ingest use case:') ||
+          startsWith(github.event.issue.title, 'Ingest posts:') ||
+          startsWith(github.event.issue.title, 'Ingest batch:')
+        ) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +53,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR_ASSOCIATION: ${{ github.event.issue.author_association }}
           INGEST_URL: ${{ github.event.inputs.url }}
           INGEST_URLS: ${{ github.event.inputs.urls }}
       - run: npm run validate:discover

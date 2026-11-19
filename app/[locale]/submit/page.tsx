@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { BlobatarAvatar } from "@/components/BlobatarAvatar";
-import { LocaleLink } from "@/components/LocaleLink";
-import { celebrate } from "@/lib/celebrate";
 import { useI18n } from "@/lib/i18n";
 import { teamSubmitCopy } from "@/lib/i18n/team-submit-ui";
 import { site } from "@/lib/site";
@@ -28,21 +26,11 @@ function identityFromXUrl(value: string) {
   }
 }
 
-type IngestResponse = {
-  status: "published" | "queued" | "extracted" | "skipped";
-  slug?: string;
-  url?: string;
-  prUrl?: string;
-  reason?: string;
-  story?: { title?: string; slug?: string };
-};
-
 export default function SubmitPage() {
   const { t, locale } = useI18n();
   const copy = teamSubmitCopy(locale);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
-  const [done, setDone] = useState<IngestResponse | null>(null);
   const [xUrlPreview, setXUrlPreview] = useState("");
   const [prompt, setPrompt] = useState("");
   const [notes, setNotes] = useState("");
@@ -67,46 +55,20 @@ export default function SubmitPage() {
 
     setSending(true);
     setError("");
-    setDone(null);
-    try {
-      const response = await fetch("/api/ingest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ xUrl, prompt: promptValue, notes: notesValue }),
-      });
-      const data = (await response.json()) as IngestResponse;
-      if (!response.ok) throw new Error("Submission failed");
-      if (data.status === "skipped") {
-        setError(data.reason || copy.skipped);
-        return;
-      }
-      if (data.status === "extracted") {
-        const title = `Ingest use case: ${xUrl}`;
-        const body = [
-          "## X post URL",
-          xUrl,
-          "",
-          "## Prompt",
-          promptValue || "Not provided",
-          "",
-          "## Notes",
-          notesValue || "Not provided",
-          "",
-          "```json",
-          JSON.stringify(data.story ?? {}, null, 2),
-          "```",
-        ].join("\n");
-        window.location.href = `https://github.com/${site.githubRepo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
-        return;
-      }
-      if (data.status !== "published" && data.status !== "queued") throw new Error("Unexpected submission response");
-      setDone(data);
-      void celebrate("submit");
-    } catch {
-      setError(copy.failed);
-    } finally {
-      setSending(false);
-    }
+    const title = `Ingest use case: ${xUrl}`;
+    const body = [
+      "## X post URL",
+      xUrl,
+      "",
+      "## Prompt",
+      promptValue || "Not provided",
+      "",
+      "## Notes",
+      notesValue || "Not provided",
+    ].join("\n");
+    window.location.assign(
+      `https://github.com/${site.githubRepo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`,
+    );
   }
 
   return (
@@ -116,40 +78,7 @@ export default function SubmitPage() {
       <p className="ui-body mt-3 text-mute">{copy.submitHelp}</p>
       <p className="ui-meta mt-3 text-mute">{copy.submitReview}</p>
 
-      {done ? (
-        <div className="mt-8 rounded-2xl border border-line bg-card px-5 py-8">
-          <div className="flex items-center gap-4">
-            <BlobatarAvatar name={identitySeed} size={56} expression="love" />
-            <div>
-              <p className="ui-card-title">
-                {done.status === "published" ? t("submit.published") : t("submit.queued")}
-              </p>
-              {handle ? <p className="ui-meta mt-1 text-mute">@{handle}</p> : null}
-            </div>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-3">
-            {done.url ? (
-              <LocaleLink
-                href={done.url}
-                className="accent-gradient inline-flex h-11 items-center rounded-[10px] px-4 text-[15px] font-medium"
-              >
-                {t("submit.viewStory")}
-              </LocaleLink>
-            ) : null}
-            {done.prUrl ? (
-              <a
-                href={done.prUrl}
-                className="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[15px] text-ink"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t("submit.viewPr")}
-              </a>
-            ) : null}
-          </div>
-        </div>
-      ) : (
-        <form onSubmit={onSubmit} className="mt-8 space-y-6">
+      <form onSubmit={onSubmit} className="mt-8 space-y-6">
           <section className="rounded-2xl border border-line bg-card p-4 md:p-5">
             <p className="ui-card-title">{copy.stepOne}</p>
             <label className="mt-4 block">
@@ -232,8 +161,7 @@ export default function SubmitPage() {
           >
             {sending ? t("submit.sending") : copy.send}
           </button>
-        </form>
-      )}
+      </form>
     </div>
   );
 }

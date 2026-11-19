@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useLayoutEffect, useMemo } from "react";
+import { isFlintPath } from "@/lib/flint/path";
 import { isGrok47Path } from "@/lib/grok47-path";
 import { THEME_STORAGE_KEY } from "@/lib/theme-script";
 
@@ -23,7 +24,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useLayoutEffect(() => {
-    if (isGrok47Path(pathname)) {
+    if (isGrok47Path(pathname) || isFlintPath(pathname)) {
       applyTheme("dark");
       return;
     }

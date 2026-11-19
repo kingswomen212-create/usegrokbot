@@ -22,6 +22,7 @@ export function configuredRedirects(): ConfiguredRedirects {
 }
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["127.0.0.1"],
   experimental: {
     globalNotFound: true,
   },
