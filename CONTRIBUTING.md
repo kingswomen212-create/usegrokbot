@@ -35,9 +35,9 @@ For an X post, the site then:
 4. Opens a pull request
 5. Merges it if validation passed
 
-Normal cases do not wait for a person. Failures go to a GitHub issue labeled `error-queue`.
+The public form only opens a GitHub issue. It does not publish the post. `/api/ingest` answers only when the request carries `INGEST_BOT_TOKEN`. The ingest workflow publishes an issue only when the author is an owner, member, or collaborator. A story pasted as JSON is refused for everyone else. Failures go to a GitHub issue labeled `error-queue`.
 
-Set `INGEST_GITHUB_TOKEN` on Vercel (contents + pull requests) so `/api/ingest` can open and merge the PR. AI calls go through the Vercel AI Gateway.
+Set `INGEST_BOT_TOKEN` on Vercel and in GitHub Actions. Set `INGEST_GITHUB_TOKEN` on Vercel (contents + pull requests) so `/api/ingest` can open and merge the PR. AI calls go through the Vercel AI Gateway.
 
 ## Source and attribution rules
 

@@ -15,12 +15,19 @@ type Row = {
   detail?: string;
 };
 
+const TRUSTED_AUTHORS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+
 type GitHubIssue = {
   number: number;
   title: string;
   body?: string | null;
   pull_request?: unknown;
+  author_association?: string;
 };
+
+function trustedAuthor(association: string | undefined) {
+  return TRUSTED_AUTHORS.has(association ?? "");
+}
 
 function readIngested() {
   return JSON.parse(readFileSync(INGESTED_PATH, "utf8")) as DiscoverStory[];
@@ -93,7 +100,11 @@ async function listOpenIngestIssues() {
     const batch = await githubApi<GitHubIssue[]>(
       `/repos/${owner}/${name}/issues?state=open&per_page=100&page=${page}`,
     );
-    issues.push(...batch.filter((issue) => isIngestIssueTitle(issue.title) && !issue.pull_request));
+    issues.push(
+      ...batch.filter(
+        (issue) => isIngestIssueTitle(issue.title) && !issue.pull_request && trustedAuthor(issue.author_association),
+      ),
+    );
     if (batch.length < 100) break;
   }
   return issues;
@@ -160,8 +171,20 @@ async function ingestUrl(
   return { row: { url: xUrl, status: result.status, detail: result.prUrl } };
 }
 
+function canAcceptRawStory(eventName: string, drained: GitHubIssue[]) {
+  if (eventName === "issues") return trustedAuthor(process.env.ISSUE_AUTHOR_ASSOCIATION);
+  if (eventName === "schedule" || eventName === "workflow_dispatch") {
+    return drained.length > 0 && drained.every((issue) => trustedAuthor(issue.author_association));
+  }
+  return false;
+}
+
 async function main() {
   const eventName = process.env.GITHUB_EVENT_NAME ?? "";
+  if (eventName === "issues" && !trustedAuthor(process.env.ISSUE_AUTHOR_ASSOCIATION)) {
+    console.log(`skip: untrusted author (${process.env.ISSUE_AUTHOR_ASSOCIATION || "unknown"})`);
+    return;
+  }
   const { title, body } = await loadOpenedIssue();
   const directUrls = collectXUrls([process.env.INGEST_URL ?? "", process.env.INGEST_URLS ?? ""].join("\n"), MAX_URLS);
 
@@ -197,6 +220,9 @@ async function main() {
   const rows: Row[] = [];
 
   if (issue.story?.slug && issue.urls.length === 0) {
+    if (!canAcceptRawStory(eventName, drained)) {
+      throw new Error("Refusing a story JSON from an untrusted author.");
+    }
     assertStorySafe(
       issue.story,
       working.filter((item) => item.slug !== issue.story!.slug),
