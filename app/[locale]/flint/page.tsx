@@ -13,7 +13,7 @@ const serif = Instrument_Serif({
 });
 
 const TITLES: Record<UrlLocale, string> = {
-  en: "What will you build today?",
+  en: "Write it once. Use it next.",
   "zh-hk": "今天要做什麼？",
   "zh-cn": "今天要做什么？",
   ja: "今日は何を作りますか？",

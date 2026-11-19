@@ -65,8 +65,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const host = request.headers.get("host")?.split(":")[0] ?? "";
-  if (host.endsWith(".apps.grok.bot")) {
+  const hostNames = [
+    request.nextUrl.hostname,
+    request.headers.get("x-forwarded-host")?.split(",")[0],
+    request.headers.get("host"),
+  ];
+  const builderHost = hostNames.some((value) => (value ?? "").split(":")[0].endsWith(".apps.grok.bot"));
+  if (builderHost) {
     const parts = pathname.split("/").filter(Boolean);
     const locale = parts[0] && isUrlLocale(parts[0]) ? parts[0] : detectUrlLocale(request);
     const onBuilder = parts[1] === "flint";

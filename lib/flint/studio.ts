@@ -44,12 +44,12 @@ export type StudioCopy = {
 const en: StudioCopy = {
   product: "Builder",
   eyebrow: "Prompt, then a running page",
-  title: "What will you build today?",
-  lede: "Create apps and websites from one prompt.",
-  placeholder: "Let's build a prototype...",
-  build: "Build now",
+  title: "Write it once. Use it next.",
+  lede: "A website, an app, a prototype, or slides. It stays in this browser, and you can keep changing it.",
+  placeholder: "A booking page for a weekend studio, with prices and a short schedule",
+  build: "Make it",
   composing: "Composing the page",
-  examples: "or start from",
+  examples: "Bring a starting point",
   library: "Your projects",
   open: "Open",
   delete: "Delete",
@@ -107,7 +107,7 @@ const en: StudioCopy = {
     { id: "prototype", label: "Prototype" },
     { id: "slides", label: "Slides" },
   ],
-  startFrom: "or start from",
+  startFrom: "Bring a starting point",
 };
 
 const zhHant: StudioCopy = {

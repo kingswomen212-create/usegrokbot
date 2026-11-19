@@ -485,39 +485,42 @@ export function FlintApp({ locale }: { locale: UiLocale; urlLocale: UrlLocale })
             </section>
           ) : (
           <div className="gate-hero">
-            <h1 className="gate-title">{copy.title}</h1>
-            <p className="gate-lede">{copy.lede}</p>
-            <form
-              className="prompt-card"
-              onSubmit={(event) => {
-                event.preventDefault();
-                build(prompt);
-              }}
-            >
-              <label className="sr" htmlFor="flint-prompt">
-                {copy.build}
-              </label>
-              <textarea
-                id="flint-prompt"
-                name="prompt"
-                value={prompt}
-                placeholder={copy.placeholder}
-                onChange={(event) => setPrompt(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && !event.shiftKey) {
-                    event.preventDefault();
-                    build(prompt);
-                  }
-                }}
-              />
-              <div className="prompt-actions">
-                <button className="build-now" type="submit" disabled={!prompt.trim() || phase === "composing"}>
-                  {copy.build}
-                </button>
+            <div className="bench">
+              <div>
+                <p className="eyebrow">{copy.product}</p>
+                <h1 className="gate-title">{copy.title}</h1>
+                <p className="gate-lede">{copy.lede}</p>
               </div>
-            </form>
+              <form
+                className="prompt-card"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  build(prompt);
+                }}
+              >
+                <label htmlFor="flint-prompt">{copy.build}</label>
+                <textarea
+                  id="flint-prompt"
+                  name="prompt"
+                  value={prompt}
+                  placeholder={copy.placeholder}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      build(prompt);
+                    }
+                  }}
+                />
+                <div className="prompt-actions">
+                  <button className="build-now" type="submit" disabled={!prompt.trim() || phase === "composing"}>
+                    {copy.build}
+                  </button>
+                </div>
+              </form>
+            </div>
             <div className="modes" role="radiogroup" aria-label={copy.title}>
-              {copy.modes.map((item) => (
+              {copy.modes.map((item, index) => (
                 <button
                   key={item.id}
                   type="button"
@@ -526,13 +529,14 @@ export function FlintApp({ locale }: { locale: UiLocale; urlLocale: UrlLocale })
                   className={mode === item.id ? "mode on" : "mode"}
                   onClick={() => setMode(item.id)}
                 >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
                   <ModeIcon id={item.id} />
                   {item.label}
                 </button>
               ))}
             </div>
             <p className="or">{copy.startFrom}</p>
-            <div className="chips center">
+            <div className="chips">
               <button type="button" className="chip" onClick={() => openSheet("figma")}>
                 Figma
               </button>
