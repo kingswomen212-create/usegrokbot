@@ -1,5 +1,5 @@
 import type { Change } from "./revise";
-import type { Blueprint, Kind, UiLocale } from "./types";
+import type { Blueprint, BuildMode, Kind, UiLocale } from "./types";
 
 export type StudioCopy = {
   product: string;
@@ -37,22 +37,24 @@ export type StudioCopy = {
   writing: string;
   samples: { label: string; prompt: string }[];
   kinds: Record<Kind, string>;
+  modes: { id: BuildMode; label: string }[];
+  startFrom: string;
 };
 
 const en: StudioCopy = {
-  product: "Flint",
+  product: "Builder",
   eyebrow: "Prompt, then a running page",
-  title: "Describe it. Use it.",
-  lede: "Flint turns one sentence into a page you can click, edit, and download. Lists, boards, timers, ledgers, and sites stay in this browser.",
-  placeholder: "A pottery studio site called Clay & Co, with a class schedule, pricing, and a warm clay palette",
-  build: "Build",
+  title: "Write it once. Use it next.",
+  lede: "A website, an app, a prototype, or slides. It stays in this browser, and you can keep changing it.",
+  placeholder: "A booking page for a weekend studio, with prices and a short schedule",
+  build: "Make it",
   composing: "Composing the page",
-  examples: "Start from a sentence",
-  library: "On this device",
+  examples: "Bring a starting point",
+  library: "Your projects",
   open: "Open",
   delete: "Delete",
   confirmDelete: "Confirm delete",
-  back: "Library",
+  back: "Home",
   chat: "Brief",
   preview: "Preview",
   code: "Code",
@@ -73,17 +75,7 @@ const en: StudioCopy = {
   youEdited: "Direct edits stay until the next brief update.",
   catalog: "UseGrokBot",
   writing: "Writing",
-  samples: [
-    {
-      label: "Pottery studio",
-      prompt: "A pottery studio site called Clay & Co, with a class schedule, pricing, and a warm clay palette",
-    },
-    { label: "Bookshop board", prompt: "Kanban board for a small bookshop named Harbor Shelf" },
-    { label: "Morning habits", prompt: "Habit tracker for quiet morning routines, sage and cream" },
-    { label: "Food truck ledger", prompt: "Expense ledger for a weekend food truck, with categories and a weekly total" },
-    { label: "Night timer", prompt: "Pomodoro timer with a large remaining time and a night palette" },
-    { label: "Peng Chau ferry", prompt: "Ferry timetable and fares for a weekend boat to Peng Chau" },
-  ],
+  samples: [],
   kinds: {
     landing: "Page",
     tasks: "Tasks",
@@ -107,18 +99,26 @@ const en: StudioCopy = {
     chat: "Messages",
     fitness: "Training",
     inventory: "Stock",
+    slides: "Slides",
   },
+  modes: [
+    { id: "website", label: "Website" },
+    { id: "app", label: "App" },
+    { id: "prototype", label: "Prototype" },
+    { id: "slides", label: "Slides" },
+  ],
+  startFrom: "Bring a starting point",
 };
 
 const zhHant: StudioCopy = {
   ...en,
   eyebrow: "一句話，接著就能使用",
-  title: "描述它，然後直接使用",
-  lede: "Flint 會把一句話組成你可以點選、修改、下載的頁面。清單、看板、計時器、帳本和網站都留在這個瀏覽器裡。",
-  placeholder: "一間叫做 Clay & Co 的陶藝教室網站，附上課時間和收費，用溫暖的陶土色",
-  build: "組成",
+  title: "今天要做什麼？",
+  lede: "用一句話做出網站或應用。結果就在這個瀏覽器裡，你還可以繼續改。",
+  placeholder: "做一個可以點的原型…",
+  build: "開始做",
   composing: "正在組成頁面",
-  examples: "從一句話開始",
+  examples: "或從這裡開始",
   library: "這部裝置上",
   open: "打開",
   delete: "刪除",
@@ -143,14 +143,7 @@ const zhHant: StudioCopy = {
   help: "可以改配色、名稱、頁面種類，以及要留下哪些部分。試「改成海藍」、「改名為 Harbor」或「加上價錢」。",
   youEdited: "直接改過的程式會留到下一次更新說明。",
   writing: "正在寫",
-  samples: [
-    { label: "陶藝教室", prompt: "一間叫做「泥與火」的陶藝教室網站，附上課時間和收費，用溫暖的陶土色" },
-    { label: "書店看板", prompt: "一間叫做「港灣書架」的小書店看板" },
-    { label: "早晨習慣", prompt: "安靜早晨用的習慣追蹤，鼠尾草綠和米色" },
-    { label: "餐車帳本", prompt: "週末餐車的支出帳本，要有分類和每週合計" },
-    { label: "夜間計時", prompt: "番茄鐘，時間要大，深色" },
-    { label: "坪洲渡輪", prompt: "週末去坪洲的渡輪時間表和票價" },
-  ],
+  samples: [],
   kinds: {
     landing: "頁面",
     tasks: "待辦",
@@ -174,18 +167,26 @@ const zhHant: StudioCopy = {
     chat: "訊息",
     fitness: "訓練",
     inventory: "庫存",
+    slides: "簡報",
   },
+  modes: [
+    { id: "website", label: "網站" },
+    { id: "app", label: "應用" },
+    { id: "prototype", label: "原型" },
+    { id: "slides", label: "簡報" },
+  ],
+  startFrom: "或從這裡開始",
 };
 
 const zhHans: StudioCopy = {
   ...zhHant,
   eyebrow: "一句话，接着就能使用",
-  title: "描述它，然后直接使用",
-  lede: "Flint 会把一句话组成你可以点选、修改、下载的页面。清单、看板、计时器、账本和网站都留在这个浏览器里。",
-  placeholder: "一间叫做 Clay & Co 的陶艺教室网站，附上课时间和收费，用温暖的陶土色",
-  build: "组成",
+  title: "今天要做什么？",
+  lede: "用一句话做出网站或应用。结果就在这个浏览器里，你还可以继续改。",
+  placeholder: "做一个可以点的原型…",
+  build: "开始做",
   composing: "正在组成页面",
-  examples: "从一句话开始",
+  examples: "或从这里开始",
   library: "这部装置上",
   open: "打开",
   delete: "删除",
@@ -203,14 +204,7 @@ const zhHans: StudioCopy = {
   help: "可以改配色、名称、页面种类，以及要留下哪些部分。试「改成海蓝」、「改名为 Harbor」或「加上价钱」。",
   youEdited: "直接改过的代码会留到下一次更新说明。",
   writing: "正在写",
-  samples: [
-    { label: "陶艺教室", prompt: "一间叫做「泥与火」的陶艺教室网站，附上课时间和收费，用温暖的陶土色" },
-    { label: "书店看板", prompt: "一间叫做「港湾书架」的小书店看板" },
-    { label: "早晨习惯", prompt: "安静早晨用的习惯追踪，鼠尾草绿和米色" },
-    { label: "餐车账本", prompt: "周末餐车的支出账本，要有分类和每周合计" },
-    { label: "夜间计时", prompt: "番茄钟，时间要大，深色" },
-    { label: "坪洲渡轮", prompt: "周末去坪洲的渡轮时间表和票价" },
-  ],
+  samples: [],
   kinds: {
     ...zhHant.kinds,
     landing: "页面",
@@ -227,18 +221,26 @@ const zhHans: StudioCopy = {
     links: "链接",
     chat: "消息",
     inventory: "库存",
+    slides: "幻灯片",
   },
+  modes: [
+    { id: "website", label: "网站" },
+    { id: "app", label: "应用" },
+    { id: "prototype", label: "原型" },
+    { id: "slides", label: "幻灯片" },
+  ],
+  startFrom: "或从这里开始",
 };
 
 const ja: StudioCopy = {
   ...en,
   eyebrow: "一文を、そのまま使えるページに",
-  title: "書いて、すぐ使う。",
-  lede: "Flint は一文から、クリックできて、直せて、ダウンロードできるページを組みます。一覧、ボード、タイマー、家計、サイトは、このブラウザに残ります。",
-  placeholder: "Clay & Co という陶芸教室のサイト。時間割と料金、暖かい土の色。",
-  build: "組む",
+  title: "今日は何を作りますか？",
+  lede: "一文から、サイトかアプリを作ります。このブラウザで動いて、そのあと直せます。",
+  placeholder: "動くプロトタイプを作る…",
+  build: "今すぐ作る",
   composing: "ページを組んでいます",
-  examples: "文から始める",
+  examples: "またはここから",
   library: "この装置",
   open: "開く",
   delete: "削除",
@@ -263,14 +265,7 @@ const ja: StudioCopy = {
   help: "色、名前、種類、残す部分を変えられます。「海の色」「Harbor にする」「料金を足す」を試してください。",
   youEdited: "直接の編集は、次の更新まで残ります。",
   writing: "記述中",
-  samples: [
-    { label: "陶芸教室", prompt: "「泥と火」という陶芸教室のサイト。時間割と料金、暖かい土の色" },
-    { label: "本屋のボード", prompt: "「港の棚」という小さな本屋のカンバン" },
-    { label: "朝の習慣", prompt: "静かな朝の習慣トラッカー。セージと生成り" },
-    { label: "屋台の家計", prompt: "週末の屋台の支出帳。分類と週の合計" },
-    { label: "夜のタイマー", prompt: "ポモドーロ。残り時間は大きく、ダーク" },
-    { label: "坪洲の船", prompt: "週末に坪洲へ行く船の時刻と運賃" },
-  ],
+  samples: [],
   kinds: {
     landing: "ページ",
     tasks: "タスク",
@@ -294,7 +289,15 @@ const ja: StudioCopy = {
     chat: "メッセージ",
     fitness: "トレーニング",
     inventory: "在庫",
+    slides: "スライド",
   },
+  modes: [
+    { id: "website", label: "サイト" },
+    { id: "app", label: "アプリ" },
+    { id: "prototype", label: "プロトタイプ" },
+    { id: "slides", label: "スライド" },
+  ],
+  startFrom: "またはここから",
 };
 
 const COPY: Record<UiLocale, StudioCopy> = {

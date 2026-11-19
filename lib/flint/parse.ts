@@ -9,6 +9,7 @@ import {
   type Section,
   type Tone,
   type UiLocale,
+  type BuildMode,
 } from "./types";
 
 const SIMPLIFIED = /[这国个东门体后发经对时间网页钟历云广车长开关来过还会说请问题现实进选软设备联系复杂]/;
@@ -35,6 +36,7 @@ const KIND_RULES: { kind: Kind; re: RegExp }[] = [
   { kind: "blog", re: /\bblog\b|magazine|網誌|博客|ブログ/i },
   { kind: "portfolio", re: /portfolio|作品集|ポートフォリオ/i },
   { kind: "menu", re: /\bmenu\b|restaurant|cafe|café|bakery|菜單|菜单|メニュー|茶餐廳|咖啡店/i },
+  { kind: "slides", re: /\bslides?\b|slide deck|簡報|幻灯片|スライド/i },
 ];
 
 const PALETTE_RULES: { id: PaletteId; re: RegExp }[] = [
@@ -203,10 +205,11 @@ function defaultHeadline(name: string, lang: UiLocale, kind: Kind): string {
   return `${name}, gathered on one page`;
 }
 
-export function parseBrief(prompt: string): Blueprint {
+export function parseBrief(prompt: string, mode: BuildMode = "website"): Blueprint {
   const text = prompt.replace(/\s+/g, " ").trim().slice(0, 2000);
   const lang = detectLang(text);
-  const kind = detectKind(text);
+  const detected = detectKind(text);
+  const kind = mode === "slides" ? "slides" : mode === "app" && detected === "landing" ? "dashboard" : detected;
   const name = extractName(text, lang).slice(0, 48);
   const palette = detectPalette(text, name);
   const sections = detectSections(text, kind);

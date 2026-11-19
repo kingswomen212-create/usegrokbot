@@ -93,9 +93,56 @@ export function renderApp(blueprint: Blueprint): Built {
       return fitness(blueprint, t);
     case "inventory":
       return inventory(blueprint, t);
+    case "slides":
+      return slides(blueprint);
     default:
       return tasks(blueprint, t);
   }
+}
+
+function slideCopy(blueprint: Blueprint): string[] {
+  const pieces = blueprint.prompt
+    .split(/[.。!！?？\n]+/)
+    .map((piece) => piece.trim())
+    .filter((piece) => piece.length > 12)
+    .slice(0, 5);
+  const extra =
+    blueprint.lang.startsWith("zh")
+      ? ["先講這是給誰用的。", "再講打開之後第一件能做的事。", "最後講怎麼知道它有用。"]
+      : blueprint.lang === "ja"
+        ? ["誰のためのものかを先に言う。", "開いて最初にできることを言う。", "役に立ったと分かる基準を言う。"]
+        : ["Say who it is for.", "Say the first thing they can do.", "Say how they know it worked."];
+  return [blueprint.name, ...(pieces.length >= 2 ? pieces : extra)].slice(0, 6);
+}
+
+function slides(blueprint: Blueprint): Built {
+  const deck = slideCopy(blueprint);
+  const labels =
+    blueprint.lang.startsWith("zh")
+      ? { back: "上一張", next: "下一張" }
+      : blueprint.lang === "ja"
+        ? { back: "前へ", next: "次へ" }
+        : { back: "Back", next: "Next" };
+  const body = `<section class="deck"><p class="eyebrow" id="progress"></p><h2 id="slide"></h2><div class="row"><button type="button" id="prev">${esc(labels.back)}</button><button type="button" class="primary" id="next">${esc(labels.next)}</button></div></section>`;
+  const js = program(`
+    var slides = ${jsJson(deck)};
+    var index = 0;
+    var title = qs("#slide");
+    var progress = qs("#progress");
+    function draw() {
+      title.textContent = slides[index];
+      progress.textContent = (index + 1) + " / " + slides.length;
+    }
+    function move(step) {
+      index = (index + step + slides.length) % slides.length;
+      draw();
+    }
+    on(qs("#prev"), "click", function () { move(-1); });
+    on(qs("#next"), "click", function () { move(1); });
+    draw();
+  `);
+  const css = `.deck{min-height:70vh;display:grid;align-content:center;gap:28px;padding:8vh 6vw}#slide{font-size:clamp(32px,6vw,64px);line-height:1.12;margin:0;max-width:16ch}`;
+  return { body, css, js };
 }
 
 function tasks(blueprint: Blueprint, t: Phrases): Built {

@@ -38,6 +38,11 @@ assert(ferry.kind === "landing", ferry.kind);
 assert(ferry.name === "Peng Chau", ferry.name);
 assert(ferry.sections.includes("schedule"), "ferry schedule");
 
+const deck = parseBrief("A short pitch for a neighborhood bookshop", "slides");
+assert(deck.kind === "slides", deck.kind);
+const appMode = parseBrief("A neighborhood bookshop", "app");
+assert(appMode.kind === "dashboard", appMode.kind);
+
 const morning = parseBrief("待辦清單叫做「晨間」");
 assert(morning.kind === "tasks", morning.kind);
 assert(morning.name === "晨間", morning.name);
